@@ -32,7 +32,7 @@ const loginSchema = yup.object().shape({
   password: yup.string().required('required'),
 });
 
-const initialValuesRegister = {
+const initialValues = {
   firstName: '',
   lastName: '',
   email: '',
@@ -42,13 +42,8 @@ const initialValuesRegister = {
   picture: '',
 };
 
-const initialValuesLogin = {
-  email: '',
-  password: '',
-};
-
 const Form = () => {
-  const [pageType, setPageType] = useState('register');
+  const [pageType, setPageType] = useState('login');
   const { palette } = useTheme();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -56,12 +51,58 @@ const Form = () => {
   const isLogin = pageType === 'login';
   const isRegister = pageType === 'register';
 
-  const handleFormSubmit = async (values, onSubmitProps) => {};
+  //   REGISTER HANDLE FUNCTION
+  const register = async (values, onSubmitProps) => {
+    // this allows us to send form info with image
+    const formData = new FormData();
+    for (let value in values) {
+      formData.append(value, values[value]);
+    }
+
+    formData.append('pictuePath', values.picture.name);
+
+    const savedUserResponse = await fetch(
+      'http://localhost:3001/auth/register',
+      {
+        method: 'POST',
+        body: formData,
+      }
+    );
+
+    const savedUser = await savedUserResponse.json();
+    console.log(savedUser);
+    onSubmitProps.resetForm();
+    if (savedUser) setPageType('login');
+  };
+
+  //   LOGIN HANDLE FUNCTION
+  const login = async (values, onSubmitProps) => {
+    const loggedInResponse = await fetch('http://localhost:3001/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(values),
+    });
+
+    const loggedIn = await loggedInResponse.json();
+    onSubmitProps.resetForm();
+    if (loggedIn) {
+      dispatch(setLogin({ user: loggedIn.user, token: loggedIn.token }));
+      navigate('/home');
+    }
+  };
+
+  const handleFormSubmit = async (values, onSubmitProps) => {
+    if (isLogin) await login(values, onSubmitProps);
+    if (isRegister) await register(values, onSubmitProps);
+  };
+
+  console.log('isRegister', isRegister);
+  console.log('isLogin', isLogin);
 
   return (
     <Formik
       onSubmit={handleFormSubmit}
-      initialValues={isLogin ? initialValuesLogin : initialValuesRegister}
+      initialValues={initialValues}
       validationSchema={isLogin ? loginSchema : registerSchema}
     >
       {({
@@ -219,7 +260,10 @@ const Form = () => {
               sx={{
                 textDecoration: 'underline',
                 color: palette.primary.main,
-                '&:hover': { cursor: 'pointer', color: palette.primary.light },
+                '&:hover': {
+                  cursor: 'pointer',
+                  color: palette.primary.light,
+                },
               }}
             >
               {isLogin
