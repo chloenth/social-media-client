@@ -19,7 +19,7 @@ const AdvertWidget = () => {
       </FlexBetween>
 
       <img
-        src={`http://localhost:3001/assets/info4.jpeg`}
+        src={`https://social-media-server-lvxv.onrender.com/assets/info4.jpeg`}
         alt='advert'
         width='100%'
         height='auto'
