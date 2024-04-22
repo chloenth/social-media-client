@@ -59,7 +59,7 @@ const Form = () => {
       formData.append(value, values[value]);
     }
 
-    formData.append('pictuePath', values.picture.name);
+    formData.append('picturePath', values.picture.name);
 
     const savedUserResponse = await fetch(
       'http://localhost:3001/auth/register',
@@ -70,7 +70,7 @@ const Form = () => {
     );
 
     const savedUser = await savedUserResponse.json();
-    console.log(savedUser);
+
     onSubmitProps.resetForm();
     if (savedUser) setPageType('login');
   };
@@ -95,9 +95,6 @@ const Form = () => {
     if (isLogin) await login(values, onSubmitProps);
     if (isRegister) await register(values, onSubmitProps);
   };
-
-  console.log('isRegister', isRegister);
-  console.log('isLogin', isLogin);
 
   return (
     <Formik
